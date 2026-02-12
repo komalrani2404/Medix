@@ -1,0 +1,67 @@
+
+
+
+from pydantic import BaseModel,EmailStr,AnyUrl,Field,field_validator,model_validator,computed_field
+
+from typing import List, Dict, Optional,Annotated
+
+
+class Patient(BaseModel):
+
+
+    name:str
+    email: EmailStr
+    age: int
+    weight: float
+    hight: float 
+    married: bool
+    allergies:list[str]
+    contact_details: dict[str, str]
+    # emergency_contact: Optional[str] = None
+
+
+    @model_validator(mode='after')
+    def validate_emergancy_contact(cls, model):
+        if model.age>60 and'emergency' not in model.contact_details:
+            raise ValueError("Emergency contact is required in contact details")
+        return model
+    
+    @computed_field
+    @property
+    def calculate_bmi(self)-> float:
+        # height_in_meters = 1.75
+        bmi = self.weight / (self.hight ** 2)
+        bmi= round(bmi, 2)
+        return bmi
+    
+
+
+def insert_data(patient: Patient):
+    print(patient.name)
+    print(patient.age)
+    print(patient.weight)
+    print(patient.married)
+    print(patient.allergies)
+    print(patient.contact_details)
+    print("bmi:",patient.calculate_bmi)
+    print("Data inserted successfully")
+
+
+
+patient_info = {
+    'name': 'neeluuuuuuuu',
+    'email': 'john.doe@example.com',
+    'age': 43,
+    'weight': 75.5,
+    'hight': 1.75,
+    'married': True,
+    'allergies': ['pollen', 'dust'],
+    'contact_details': {
+        'email': 'abc@gmail.com',
+        'emergency': '987654'},
+
+}
+
+
+patient1 = Patient(**patient_info)
+insert_data(patient1)
